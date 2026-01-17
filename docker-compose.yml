@@ -1,0 +1,19 @@
+services:
+  whisper:
+    build: .
+    image: whisper-gpu:latest
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    volumes:
+      - ./models:/models
+      - ./audio:/data
+    
+    working_dir: /data
+    entrypoint: ["R"]
