@@ -18,13 +18,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get update && apt-get install -y \
     r-base r-base-dev cmake git \
     libcurl4-openssl-dev libssl-dev libxml2-dev libopenblas-dev \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # 4. Install audio.whisper
 RUN git clone https://github.com/bnosac/audio.whisper.git && \
-    Rscript -e "install.packages('remotes'); remotes::install_deps('./audio.whisper', dependencies = TRUE)" && \
+    Rscript -e "install.packages('remotes'); \
+                remotes::install_deps('./audio.whisper', dependencies = TRUE); \
+                remotes::install_github('jmgirard/openac')" && \
     R CMD INSTALL --no-test-load audio.whisper && \
     rm -rf audio.whisper
 
