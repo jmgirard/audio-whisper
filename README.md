@@ -13,9 +13,17 @@ This repository provides a pre-configured Docker image that handles the complex 
 
 ## Prerequisites
 
-1.  **Docker Desktop:** [Install Docker Desktop](https://www.docker.com/products/docker-desktop/).
+1.  **Docker:** [Install Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine (Linux).
 2.  **NVIDIA Drivers:** Ensure your host machine has NVIDIA drivers installed (Version **555.xx** or newer is recommended).
-3.  **(Windows Users) WSL2:** Ensure Docker is configured to use the WSL2 backend.
+3.  **OS-Specific Requirements:**
+    * **Windows:** Ensure Docker is configured to use the **WSL2 backend**.
+    * **Linux:** You **must** install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) so Docker can access your GPU.
+        ```bash
+        # Ubuntu/Debian example
+        sudo apt-get install -y nvidia-container-toolkit
+        sudo nvidia-ctk runtime configure --runtime=docker
+        sudo systemctl restart docker
+        ```
 
 ---
 
@@ -27,17 +35,8 @@ git clone [https://github.com/jmgirard/audio-whisper.git](https://github.com/jmg
 cd audio-whisper
 ```
 
-### 2. Setup Data Folders
-Create the directories where your audio files and downloaded models will live. These are mounted into the container so your data persists after the container shuts down.
-
-```bash
-# Windows (PowerShell)
-mkdir models
-mkdir audio
-
-# Linux / Mac
-mkdir models audio
-```
+### 2. Verify Data Folders
+The repository includes two empty folders, **`models/`** and **`audio/`**. These are mounted into the container so your data persists after the container shuts down.
 
 * **`models/`**: Whisper model weights (e.g., `ggml-base.bin`) will be saved here.
 * **`audio/`**: Place your `.wav` files here to transcribe them.
