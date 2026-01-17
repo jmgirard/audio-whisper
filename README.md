@@ -104,27 +104,6 @@ results <- lapply(files, function(f) {
 
 ## Troubleshooting
 
-### "Fatal error: you must specify '--save'..."
-**Cause:** You ran `docker-compose up` instead of `docker compose run`.
-**Fix:** R requires an interactive terminal. Always use:
-```bash
-docker compose run --rm -it whisper
-```
-
-### Build Fails or Freezes on Windows (WSL2)
-**Cause:** Compiling the "Fat Binary" requires significant RAM. WSL2 defaults to using only 50% of your system memory, which may cause the compiler to crash with `signal 9` or `killed`.
-**Fix:** Increase WSL2 memory allocation.
-
-1.  Create a file at `C:\Users\<YourUser>\.wslconfig`.
-2.  Add the following:
-    ```ini
-    [wsl2]
-    memory=16GB  # Adjust based on your available RAM
-    processors=4
-    swap=8GB
-    ```
-3.  Restart WSL2: `wsl --shutdown`.
-
 ### "libcuda.so.1: cannot open shared object file"
 **Context:** If you see this during the *build* process, it is ignored (we use `--no-test-load`).
 **Context:** If you see this during *runtime* (`library(audio.whisper)`), it means the GPU was not passed through.
