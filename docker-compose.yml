@@ -1,7 +1,7 @@
 services:
   whisper:
     build: .
-    image: whisper-gpu:latest
+    image: jmgirard/audio-whisper:latest
     
     deploy:
       resources:
