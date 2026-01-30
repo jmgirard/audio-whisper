@@ -65,7 +65,7 @@ library(audio.whisper)
 # 1. Download a model (Saved to your local 'models' folder permanently)
 # Options: "tiny", "base", "small", "medium", "large-v3"
 if (!file.exists("/models/ggml-base.bin")) {
-  whisper_download_model("base", output_dir = "/models")
+  whisper_download_model("base", model_dir = "/models")
 }
 
 # 2. Load the model
