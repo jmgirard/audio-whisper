@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # 3. Install R 4.5+, System Dependencies, and Build Tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common dirmngr wget gpg-agent \
+    software-properties-common dirmngr wget gpg-agent libarchive-dev \
     && wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc \
     && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/" \
     && apt-get update && apt-get install -y \
