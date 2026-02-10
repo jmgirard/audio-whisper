@@ -1,15 +1,14 @@
-# GPU-Accelerated Whisper for R (`openac`)
+# GPU-Accelerated Whisper for R
 
-A Dockerized environment for running [OpenAI's Whisper](https://github.com/openai/whisper) model directly in R with full NVIDIA GPU acceleration using the `openac` package.
+A Dockerized environment for running [OpenAI's Whisper](https://github.com/openai/whisper) model directly in R with full NVIDIA GPU acceleration using the [`openac`](https://github.com/jmgirard/openac) package.
 
-This repository provides a pre-configured Docker image that handles the complex compilation of the `openac` package and the underlying `whisper.cpp` library. It is built as a "Fat Binary," meaning it supports virtually all modern NVIDIA GPUs (RTX 20-series through RTX 50-series) out of the box without requiring local compilation.
+This repository provides a pre-configured Docker image that handles the complex compilation of `openac`—which provides convenient wrappers for using `ffmpeg` and the [bnosac/audio.whisper](https://github.com/bnosac/audio.whisper) package it builds upon. It is built as a "Fat Binary," meaning it supports virtually all modern NVIDIA GPUs (RTX 20-series through RTX 50-series) out of the box without requiring local compilation.
 
 ### Why use this?
 * **Reproducibility:** Everyone on the research team runs the exact same version of R (4.5.x), CUDA (12.6), and Whisper.
 * **Speed:** Uses cuBLAS for GPU acceleration, making transcription significantly faster than CPU-only methods.
 * **Ease of Use:** No need to install CUDA toolkits, Visual Studio, or C++ compilers on your local Windows/Linux machine.
 
----
 
 ## Prerequisites
 
@@ -26,7 +25,6 @@ This repository provides a pre-configured Docker image that handles the complex 
         sudo systemctl restart docker
         ```
 
----
 
 ## Quick Start
 
@@ -51,8 +49,6 @@ docker compose run --rm -it whisper
 
 * `--rm`: Automatically removes the container when you exit R (saves disk space).
 * `-it`: Connects your keyboard to the R console (Interactive Mode).
-
----
 
 ## Usage Guide
 
@@ -92,37 +88,37 @@ aw_transcribe_dir(
 )
 ```
 
----
+## Power Users: External Input & Output
 
-## Power Users: Mounting External Media Libraries
-
-If you want to transcribe files from a large external library without mixing the output CSVs into that folder, you can mount a second volume.
+If you want to keep both your audio and your transcriptions on an external drive (without mixing them), you can mount the drive as a second volume.
 
 ### 1. Update `docker-compose.yml`
-Add a second line to the `volumes` section mapping your local folder to a new path inside the container (e.g., `/input`).
+Add a second line to the `volumes` section. Map your external drive (or a parent folder) to a path inside the container, such as `/external`.
 
 ```yaml
     volumes:
-      - ./data:/data                        # Stores output CSVs and models
-      - /path/to/your/local/library:/input  # Read-only access to your audio
+      - ./data:/data                        # Keep this for project files
+      - /mnt/external_drive:/external       # Mount your external drive
 ```
 
 ### 2. Update your R Script
-When running the transcription, point the `indir` (input directory) to this new mapped folder, and keep `csvdir` (output directory) in `/data`.
+You can now read from one subfolder on that drive and write to another.
 
 ```r
 library(openac)
 model <- aw_get_model("medium", use_gpu = TRUE)
 
+# Create an output folder on the external drive if it doesn't exist
+if (!dir.exists("/external/transcripts")) dir.create("/external/transcripts")
+
 aw_transcribe_dir(
-  indir = "/input",       # Reads from your external library
+  indir = "/external/my_audio",    # Read from the 'my_audio' subfolder
   inext = "mp3",
   model = model,
-  csvdir = "/data/output" # Saves transcripts to the project's data folder
+  csvdir = "/external/transcripts" # Save CSVs to the 'transcripts' subfolder
 )
 ```
 
----
 
 ## Technical Details
 
@@ -132,7 +128,6 @@ aw_transcribe_dir(
     * *Note:* Supports Blackwell (RTX 50-series) via JIT compatibility on the `90` architecture.
 * **Driver Requirement:** Host machine must run NVIDIA Driver **555.xx** or higher.
 
----
 
 ## Troubleshooting
 
