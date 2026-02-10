@@ -1,4 +1,2 @@
-models/*
-audio/*
-!models/.gitkeep
-!audio/.gitkeep
+data/*
+!data/harvard.wav

@@ -1,7 +1,7 @@
 services:
   whisper:
     build: .
-    image: jmgirard/audio-whisper:latest
+    image: reduced-whisper
     
     deploy:
       resources:
@@ -12,8 +12,7 @@ services:
               capabilities: [gpu]
     
     volumes:
-      - ./models:/models
-      - ./audio:/data
+      - ./data:/data
     
     working_dir: /data
     entrypoint: ["R"]
