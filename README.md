@@ -88,37 +88,33 @@ aw_transcribe_dir(
 )
 ```
 
-## Power Users: External Input & Output
+## Power Users: Separate Input & Output Folders
 
-If you want to keep both your audio and your transcriptions on an external drive (without mixing them), you can mount the drive as a second volume.
+If you have a large media library on your computer that you want to read from without mixing the output CSVs into that folder, you can mount it as a second volume.
 
 ### 1. Update `docker-compose.yml`
-Add a second line to the `volumes` section. Map your external drive (or a parent folder) to a path inside the container, such as `/external`.
+Add a second line to the `volumes` section. Map your local media folder to a new path inside the container, such as `/library`.
 
 ```yaml
     volumes:
-      - ./data:/data                        # Keep this for project files
-      - /mnt/external_drive:/external       # Mount your external drive
+      - ./data:/data                            # Keep this for project outputs
+      - C:/Users/YourName/Music/Podcasts:/library    # Read-only access to media
 ```
 
 ### 2. Update your R Script
-You can now read from one subfolder on that drive and write to another.
+You can now read from your local library and write to the project data folder.
 
 ```r
 library(openac)
 model <- aw_get_model("medium", use_gpu = TRUE)
 
-# Create an output folder on the external drive if it doesn't exist
-if (!dir.exists("/external/transcripts")) dir.create("/external/transcripts")
-
 aw_transcribe_dir(
-  indir = "/external/my_audio",    # Read from the 'my_audio' subfolder
+  indir = "/library",     # Reads from C:/Users/YourName/Music/Podcasts
   inext = "mp3",
   model = model,
-  csvdir = "/external/transcripts" # Save CSVs to the 'transcripts' subfolder
+  csvdir = "/data"        # Saves transcripts to the project 'data' folder
 )
 ```
-
 
 ## Technical Details
 
