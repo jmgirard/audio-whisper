@@ -113,8 +113,8 @@ aw_transcribe_dir(
   inext = "mp3",
   model = model,
   wavdir = "/library/output",       # Saves converted wav files (optional)
-  rdsdir = "/library/output",       # Saves compressed transcripts 
-  csvdir = "/library/output"        # Saves text transcripts
+  rdsdir = "/library/output",       # Saves compressed transcripts (optional)
+  csvdir = "/library/output"        # Saves text transcripts (optional)
 )
 ```
 
