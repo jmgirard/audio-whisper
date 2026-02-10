@@ -94,6 +94,36 @@ aw_transcribe_dir(
 
 ---
 
+## Power Users: Mounting External Media Libraries
+
+If you want to transcribe files from a large external library without mixing the output CSVs into that folder, you can mount a second volume.
+
+### 1. Update `docker-compose.yml`
+Add a second line to the `volumes` section mapping your local folder to a new path inside the container (e.g., `/input`).
+
+```yaml
+    volumes:
+      - ./data:/data                        # Stores output CSVs and models
+      - /path/to/your/local/library:/input  # Read-only access to your audio
+```
+
+### 2. Update your R Script
+When running the transcription, point the `indir` (input directory) to this new mapped folder, and keep `csvdir` (output directory) in `/data`.
+
+```r
+library(openac)
+model <- aw_get_model("medium", use_gpu = TRUE)
+
+aw_transcribe_dir(
+  indir = "/input",       # Reads from your external library
+  inext = "mp3",
+  model = model,
+  csvdir = "/data/output" # Saves transcripts to the project's data folder
+)
+```
+
+---
+
 ## Technical Details
 
 * **Base Image:** `nvidia/cuda:12.6.3-devel-ubuntu24.04`
