@@ -1,8 +1,8 @@
-# GPU-Accelerated Whisper for R (`audio.whisper`)
+# GPU-Accelerated Whisper for R (`openac`)
 
-A Dockerized environment for running [OpenAI's Whisper](https://github.com/openai/whisper) model directly in R with full NVIDIA GPU acceleration.
+A Dockerized environment for running [OpenAI's Whisper](https://github.com/openai/whisper) model directly in R with full NVIDIA GPU acceleration using the `openac` package.
 
-This repository provides a pre-configured Docker image that handles the complex compilation of the [`audio.whisper`](https://github.com/bnosac/audio.whisper) package and the underlying `whisper.cpp` library. It is built as a "Fat Binary," meaning it supports virtually all modern NVIDIA GPUs (RTX 20-series through RTX 50-series) out of the box without requiring local compilation.
+This repository provides a pre-configured Docker image that handles the complex compilation of the `openac` package and the underlying `whisper.cpp` library. It is built as a "Fat Binary," meaning it supports virtually all modern NVIDIA GPUs (RTX 20-series through RTX 50-series) out of the box without requiring local compilation.
 
 ### Why use this?
 * **Reproducibility:** Everyone on the research team runs the exact same version of R (4.5.x), CUDA (12.6), and Whisper.
@@ -14,8 +14,9 @@ This repository provides a pre-configured Docker image that handles the complex 
 ## Prerequisites
 
 1.  **Docker:** [Install Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine (Linux).
-2.  **NVIDIA Drivers:** Ensure your host machine has NVIDIA drivers installed (Version **555.xx** or newer is recommended).
-3.  **OS-Specific Requirements:**
+2.  **Git:** [Install Git](https://git-scm.com/)
+3.  **NVIDIA Drivers:** Ensure your host machine has NVIDIA drivers installed (Version **555.xx** or newer is recommended).
+4.  **OS-Specific Requirements:**
     * **Windows:** Ensure Docker is configured to use the **WSL2 backend**.
     * **Linux:** You **must** install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) so Docker can access your GPU.
         ```bash
@@ -35,11 +36,11 @@ git clone https://github.com/jmgirard/audio-whisper.git
 cd audio-whisper
 ```
 
-### 2. Verify Data Folders
-The repository includes two empty folders, **`models/`** and **`audio/`**. These are mounted into the container so your data persists after the container shuts down.
+### 2. Verify Data Folder
+The repository includes a single folder named **`data/`**. This folder is mounted to `/data` inside the container, allowing files to persist after the container shuts down.
 
-* **`models/`**: Whisper model weights (e.g., `ggml-base.bin`) will be saved here.
-* **`audio/`**: Place your `.wav` files here to transcribe them.
+* **`data/`**: This folder contains `harvard.wav` as a sample file.
+* **Organization:** For batch processing, we strongly recommend creating a subfolder inside `data/` (e.g., `data/my_audio/`) on your host machine to keep input files separate from models and output files.
 
 ### 3. Launch the Container
 Use `docker compose` to build and launch an interactive R session. The first run will take a few minutes to build the image.
@@ -55,39 +56,40 @@ docker compose run --rm -it whisper
 
 ## Usage Guide
 
-Once you are inside the R session, you can use the package immediately. The GPU is enabled by default.
+Once you are inside the R session, the working directory is set to `/data`. You can use the package immediately. The GPU is enabled by default.
+
+**Note on File Formats:** Both `aw_transcribe()` and `aw_transcribe_dir()` are smart enough to automatically convert input files to the format required by Whisper. You can pass raw audio (wav, mp3, m4a) or video (mp4, mov) files directly without manual conversion.
 
 ### Example: Transcribing a File
 
 ```r
-library(audio.whisper)
+# Setup
+library(openac)
+model <- aw_get_model("tiny", use_gpu = TRUE)
 
-# 1. Download a model (Saved to your local 'models' folder permanently)
-# Options: "tiny", "base", "small", "medium", "large-v3"
-if (!file.exists("/models/ggml-base.bin")) {
-  whisper_download_model("base", model_dir = "/models")
-}
+# Transcribe sample file (included in /data)
+out <- aw_transcribe("harvard.wav", model, csvfile = "harvard.csv")
 
-# 2. Load the model
-# NOTE: 'use_gpu = TRUE' is critical. If successful, you will see 'BLAS = 1' in the output.
-model <- whisper("/models/ggml-base.bin", use_gpu = TRUE)
-
-# 3. Transcribe
-# Ensure you have a file named 'test.wav' in your 'audio' folder
-# out <- predict(model, newdata = "/data/test.wav")
-
-# 4. Inspect Results
-# print(out)
+# Transcribe sample file with voice activity detection (VAD)
+out <- aw_transcribe("harvard.wav", model, csvfile = "harvard.csv", whisper_args = list(vad = TRUE))
 ```
 
 ### Batch Processing
-Since the `/data` folder inside Docker maps to your local `audio` folder, you can iterate over it:
+Because the working directory is `/data`, you should point `aw_transcribe_dir` to a specific subfolder containing your audio files (e.g., `my_audio`). Do not run this on the root `/data` folder itself.
 
 ```r
-files <- list.files("/data", pattern = "\\.wav$", full.names = TRUE)
-results <- lapply(files, function(f) {
-  predict(model, newdata = f)
-})
+# 1. Create a subfolder for outputs (optional, keeps things clean)
+if (!dir.exists("transcripts")) dir.create("transcripts")
+
+# 2. Batch transcribe
+# Assumes you created a folder named 'my_audio' inside your local 'data' folder
+# and placed your files there.
+aw_transcribe_dir(
+  indir = "my_audio",    # Input subfolder (relative to /data)
+  inext = "wav",         # Extension without the dot
+  model = model,
+  csvdir = "transcripts" # Output subfolder
+)
 ```
 
 ---
@@ -106,5 +108,5 @@ results <- lapply(files, function(f) {
 
 ### "libcuda.so.1: cannot open shared object file"
 **Context:** If you see this during the *build* process, it is ignored (we use `--no-test-load`).
-**Context:** If you see this during *runtime* (`library(audio.whisper)`), it means the GPU was not passed through.
+**Context:** If you see this during *runtime* (`library(openac)`), it means the GPU was not passed through.
 **Fix:** Ensure you are using `docker compose run` (which handles the `--gpus all` flag for you) and that your NVIDIA drivers are up to date.
