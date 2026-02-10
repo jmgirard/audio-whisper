@@ -112,7 +112,9 @@ aw_transcribe_dir(
   indir = "/library",     # Reads from C:/Users/YourName/Music/Podcasts
   inext = "mp3",
   model = model,
-  csvdir = "/data"        # Saves transcripts to the project 'data' folder
+  wavdir = "/library/output",       # Saves converted wav files (optional)
+  rdsdir = "/library/output",       # Saves compressed transcripts 
+  csvdir = "/library/output"        # Saves text transcripts
 )
 ```
 
