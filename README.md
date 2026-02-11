@@ -30,6 +30,8 @@ This repository provides a pre-configured Docker image that handles the complex 
 ## Quick Start
 
 ### 1. Clone the Repository
+In terminal (e.g., Powershell):
+
 ```bash
 git clone https://github.com/jmgirard/audio-whisper.git
 cd audio-whisper
