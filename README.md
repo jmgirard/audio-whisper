@@ -13,7 +13,7 @@ This repository provides a pre-configured Docker image that handles the complex 
 ## Prerequisites
 
 1.  **Docker:** [Install Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine (Linux).
-    * **Windows:** On an organization-controlled machine, you may need to get your account added to the machine's `docker-users` user group to have permission to run Docker. Contact your organization tech support to enquire.
+    * **Windows:** On an organization-controlled machine, you may need to get your account added to the machine's `docker-users` user group to have permission to run Docker. Contact your organization's tech support to inquire.
 2.  **Git:** [Install Git](https://git-scm.com/)
 3.  **NVIDIA Drivers:** Ensure your host machine has NVIDIA drivers installed (Version **555.xx** or newer is recommended).
 4.  **OS-Specific Requirements:**
