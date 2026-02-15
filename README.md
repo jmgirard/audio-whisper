@@ -118,8 +118,8 @@ Add a second line to the `volumes` section. Map your local media folder to a new
 
 ```yaml
     volumes:
-      - ./data:/data                            # Keep this for project outputs
-      - C:/Users/YourName/Music/Podcasts:/library    # Read-only access to media
+      - ./data:/data                                 # Keep this for project outputs
+      - C:/Users/YourName/Music/Podcasts:/library    # Access to media
 ```
 
 ### 2. Update your R Script
